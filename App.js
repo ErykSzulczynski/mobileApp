@@ -2,65 +2,85 @@ import "react-native-gesture-handler";
 import Ionicons from "@expo/vector-icons/Ionicons";
 import { StatusBar } from "expo-status-bar";
 import React from "react";
-import { StyleSheet, Text, View, Platform, Button, ActivityIndicator } from "react-native";
+import {
+    StyleSheet,
+    Text,
+    View,
+    Platform,
+    Button,
+    ActivityIndicator,
+} from "react-native";
 import { NavigationContainer } from "@react-navigation/native";
 import { createStackNavigator } from "@react-navigation/stack";
 import { createBottomTabNavigator } from "@react-navigation/bottom-tabs";
 
 class HomeScreen extends React.Component {
-  constructor(props){
-    super(props);
-    this.state = {
-      isLoading: true,
-      dataSource: null
-    }
-  }
-
-  componentDidMount(){
-    return fetch('https://facebook.github.io/react-native/movies.json')
-    .then(response => response.json())
-    .then(response => {
-        this.setState({
-          isLoading: false,
-          dataSource: response.movies
-        })
-    });
-  }
-
-  render() {
-
-    if(this.state.isLoading) {
-      return(
-        <View style={styles.container}>
-          <ActivityIndicator/>
-        </View>
-      )
+    constructor(props) {
+        super(props);
+        this.state = {
+            isLoading: true,
+            dataSource: null,
+        };
     }
 
-    let movies = this.state.dataSource.map((val, key) => {
-      return <View key={key} style={styles.item}>
-        <Text>{val.title}</Text>
-      </View>
-    })
+    componentDidMount() {
+        return fetch("https://facebook.github.io/react-native/movies.json")
+            .then((response) => response.json())
+            .then((response) => {
+                this.setState({
+                    isLoading: false,
+                    dataSource: response.movies,
+                });
+            });
+    }
 
-    return (
-      <View style={styles.container}>
-          <Text style={styles.text}>Home Screen</Text>
-          {movies}
-      </View>
-    );
-  }
-}
+    render() {
+        const { navigation } = this.props;
 
-function DetailsScreen() {
-    return (
-        <View style={styles.container}>
-            <Text style={styles.text}>Details Screen</Text>
-        </View>
-    );
+        if (this.state.isLoading) {
+            return (
+                <View style={styles.container}>
+                    <ActivityIndicator />
+                </View>
+            );
+        }
+
+        let movies = this.state.dataSource.map((val, key) => {
+            return (
+                <View key={key} style={styles.item}>
+                    <Text
+                        onPress={() => {
+                            navigation.navigate("Details", {
+                                title: val.title,
+                            });
+                        }}
+                    >
+                        {val.title}
+                    </Text>
+                </View>
+            );
+        });
+
+        return (
+            <View style={styles.container}>
+                <Text style={styles.text}>Home Screen</Text>
+                {movies}
+            </View>
+        );
+    }
 }
 
 const Stack = createStackNavigator();
+
+function DetailsScreen({ route, navigation }) {
+    const { title } = route.params;
+    return (
+        <View style={styles.container}>
+            <Text style={styles.text}>Details Screen</Text>
+            <Text>{JSON.stringify(title)}</Text>
+        </View>
+    );
+}
 
 const Tab = createBottomTabNavigator();
 
@@ -92,10 +112,10 @@ export default function App() {
                 })}
                 activeColor="#0275dB"
                 inactiveColor="gray"
-                barStyle={{ backgroundColor: '#694fad' }}
+                barStyle={{ backgroundColor: "#694fad" }}
             >
                 <Tab.Screen name="Home" component={HomeScreen} />
-                <Tab.Screen name="Settings" component={DetailsScreen} />
+                <Tab.Screen name="Details" component={DetailsScreen} />
             </Tab.Navigator>
         </NavigationContainer>
     );
@@ -116,13 +136,13 @@ const styles = StyleSheet.create({
     },
 
     item: {
-      color: '#ffff',
-      flex: 1,
-      alignSelf: 'stretch',
-      margin: 10,
-      alignItems: 'center',
-      justifyContent: 'center',
-      borderBottomWidth: 1,
-      borderBottomColor: 'grey'
-    }
+        color: "#ffff",
+        flex: 1,
+        alignSelf: "stretch",
+        margin: 10,
+        alignItems: "center",
+        justifyContent: "center",
+        borderBottomWidth: 1,
+        borderBottomColor: "grey",
+    },
 });
